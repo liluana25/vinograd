@@ -31,10 +31,9 @@ async def cb_varieties_list(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> N
         return
     lines = [f"🌿 <b>Мои сорта ({len(varieties)})</b>\n"]
     for v in varieties:
-        line = f"• {v['name']}"
+        lines.append(f"• <b>{v['name']}</b>")
         if v.get("notes"):
-            line += f"  <i>— {v['notes'][:40]}</i>"
-        lines.append(line)
+            lines.append(f"  <i>{v['notes']}</i>")
     await q.edit_message_text(
         "\n".join(lines),
         reply_markup=back_keyboard("menu:varieties"),
@@ -176,6 +175,9 @@ async def cb_variety_note_pick(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -
     current = variety.get("notes") or "пусто"
     await q.edit_message_text(
         f"Сорт: <b>{variety['name']}</b>\nТекущая заметка: <i>{current}</i>\n\nВведи новую заметку:",
+        reply_markup=InlineKeyboardMarkup([[
+            InlineKeyboardButton("« Отмена", callback_data="menu:cancel"),
+        ]]),
         parse_mode="HTML",
     )
     return VAR_WAITING_NOTE_TEXT
