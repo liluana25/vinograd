@@ -1,10 +1,13 @@
 """Cuttings module."""
 from __future__ import annotations
 
+import logging
 from datetime import date as Date
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
+
+logger = logging.getLogger(__name__)
 
 from bot.database import queries as db
 from bot.utils.keyboards import (
@@ -105,27 +108,46 @@ async def text_cut_storage(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> in
 
 async def _save_cutting(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
     ud = ctx.user_data
-    season = int(ud["cut_date"][:4])
-    cid = await db.add_cutting(
-        variety_id=ud["cut_variety_id"],
-        season=season,
-        cut_date=ud["cut_date"],
-        cut_count=ud["cut_count"],
-        storage_notes=ud.get("cut_storage") or "",
-    )
-    text = (
-        f"✅ Партия черенков сохранена!\n\n"
-        f"<b>{ud['cut_variety_name']}</b>, {ud['cut_count']} шт., {ud['cut_date']}"
-    )
+    # Extract values before clear so they survive it
+    variety_id   = ud.get("cut_variety_id")
+    variety_name = ud.get("cut_variety_name", "?")
+    cut_date     = ud.get("cut_date", "")
+    cut_count    = ud.get("cut_count", 0)
+    storage      = ud.get("cut_storage") or ""
+
+    try:
+        season = int(cut_date[:4])
+        cid = await db.add_cutting(
+            variety_id=variety_id,
+            season=season,
+            cut_date=cut_date,
+            cut_count=cut_count,
+            storage_notes=storage,
+        )
+    except Exception:
+        logger.exception("Failed to save cutting")
+        target = update.message or (update.callback_query.message if update.callback_query else None)
+        if target:
+            await target.reply_text("❌ Ошибка сохранения. Попробуй ещё раз или нажми /cancel")
+        ctx.user_data.clear()
+        return ConversationHandler.END
+
+    text = f"✅ Партия черенков сохранена!\n\n<b>{variety_name}</b>, {cut_count} шт., {cut_date}"
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("✏️ Обновить этапы", callback_data=f"cut_edit:{cid}")],
         [InlineKeyboardButton("« Черенки", callback_data="menu:cuttings")],
     ])
     ctx.user_data.clear()
-    if update.callback_query:
-        await update.callback_query.edit_message_text(text, reply_markup=buttons, parse_mode="HTML")
-    else:
-        await update.message.reply_text(text, reply_markup=buttons, parse_mode="HTML")
+    try:
+        if update.callback_query:
+            await update.callback_query.edit_message_text(text, reply_markup=buttons, parse_mode="HTML")
+        else:
+            await update.message.reply_text(text, reply_markup=buttons, parse_mode="HTML")
+    except Exception:
+        logger.exception("Failed to send cutting confirmation")
+        target = update.message or (update.callback_query.message if update.callback_query else None)
+        if target:
+            await target.reply_text("✅ Черенки сохранены (но не могу показать детали).")
     return ConversationHandler.END
 
 

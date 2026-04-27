@@ -50,8 +50,15 @@ async def cb_tpl_new_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> st
 
 
 async def text_tpl_new_name(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> str:
-    ctx.user_data["tpl_name"] = update.message.text.strip()
-    await update.message.reply_text("Выбери тип события для шаблона:", reply_markup=event_type_keyboard())
+    name = update.message.text.strip()
+    ctx.user_data["tpl_name"] = name
+    await update.message.reply_text(
+        f"Шаблон: <b>{name}</b>\n\n"
+        "Выбери <b>тип операции</b>, которую выполняет этот шаблон.\n"
+        "Например: «Весенняя обработка» = <b>💊 Обработка</b>; «Летний полив» = <b>💧 Полив</b>:",
+        reply_markup=event_type_keyboard(),
+        parse_mode="HTML",
+    )
     return TPL_NEW_TYPE
 
 

@@ -78,7 +78,8 @@ def _register_handlers(app: Application) -> None:
             ],
         },
         fallbacks=[
-            CommandHandler("cancel", varieties.cmd_cancel, filters=_ONLY_ME),
+            CommandHandler("cancel", varieties.cmd_cancel,     filters=_ONLY_ME),
+            CommandHandler("menu",   menu.cmd_menu_to_main,    filters=_ONLY_ME),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -123,7 +124,8 @@ def _register_handlers(app: Application) -> None:
             ],
         },
         fallbacks=[
-            CommandHandler("cancel", events.cmd_cancel, filters=_ONLY_ME),
+            CommandHandler("cancel", events.cmd_cancel,     filters=_ONLY_ME),
+            CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -163,7 +165,8 @@ def _register_handlers(app: Application) -> None:
             ],
         },
         fallbacks=[
-            CommandHandler("cancel", cuttings.cmd_cancel, filters=_ONLY_ME),
+            CommandHandler("cancel", cuttings.cmd_cancel,   filters=_ONLY_ME),
+            CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -222,7 +225,8 @@ def _register_handlers(app: Application) -> None:
             ],
         },
         fallbacks=[
-            CommandHandler("cancel", templates.cmd_cancel, filters=_ONLY_ME),
+            CommandHandler("cancel", templates.cmd_cancel,  filters=_ONLY_ME),
+            CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
