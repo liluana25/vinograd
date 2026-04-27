@@ -5,6 +5,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 EVENT_TYPES: dict[str, str] = {
     "planting":       "🌱 Посадка",
+    "opening":        "🌿 Открытие весной",
     "treatment":      "💊 Обработка",
     "fertilizing":    "🌿 Подкормка",
     "watering":       "💧 Полив",
@@ -177,5 +178,6 @@ def months_keyboard(year: int, callback_prefix: str) -> InlineKeyboardMarkup:
             row = []
     if row:
         buttons.append(row)
+    # back to year picker
     buttons.append([InlineKeyboardButton("« Назад", callback_data="an:calendar")])
     return InlineKeyboardMarkup(buttons)
