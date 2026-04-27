@@ -31,12 +31,27 @@ def _current_years() -> list[int]:
     return list(range(current, current - 5, -1))
 
 
+def _calendar_years() -> list[int]:
+    """Calendar goes back to 2019 to cover full vineyard history."""
+    current = Date.today().year
+    return list(range(current, 2019, -1))
+
+
 # ── Calendar ──────────────────────────────────────────────────────────────────
 
 async def cb_an_calendar(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     q = update.callback_query
     await q.answer()
-    year = Date.today().year
+    await q.edit_message_text(
+        "Выбери год:",
+        reply_markup=years_keyboard(_calendar_years(), "an_cal_year"),
+    )
+
+
+async def cb_an_cal_year(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    q = update.callback_query
+    await q.answer()
+    year = int(q.data.split(":")[1])
     await q.edit_message_text(
         f"Выбери месяц ({year}):",
         reply_markup=months_keyboard(year, "an_cal_month"),
@@ -52,7 +67,7 @@ async def cb_an_cal_month(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> Non
     text = fmt_calendar(year, month, events)
     await q.edit_message_text(
         text,
-        reply_markup=back_keyboard("an:calendar"),
+        reply_markup=back_keyboard(f"an_cal_year:{year}"),
         parse_mode="HTML",
     )
 
@@ -84,7 +99,6 @@ async def cb_an_hist_var(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None
             await q.message.reply_text(chunk, parse_mode="HTML", reply_markup=back_keyboard("an:bush_history"))
         else:
             await q.message.reply_text(chunk, parse_mode="HTML")
-    await q.answer()
 
 
 # ── Phenology ─────────────────────────────────────────────────────────────────
