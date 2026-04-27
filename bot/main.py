@@ -48,8 +48,8 @@ def _register_handlers(app: Application) -> None:
     app.add_handler(MessageHandler(~_ONLY_ME, _silent_reject), group=-1)
 
     # ── Top-level commands ────────────────────────────────────────────────────
-    app.add_handler(CommandHandler("start",  menu.cmd_start,  filters=_ONLY_ME))
-    app.add_handler(CommandHandler("menu",   menu.cmd_menu,   filters=_ONLY_ME))
+    app.add_handler(CommandHandler("start",  menu.cmd_start,    filters=_ONLY_ME))
+    app.add_handler(CommandHandler("menu",   menu.cmd_menu,     filters=_ONLY_ME))
     app.add_handler(CommandHandler("backup", backup.cmd_backup, filters=_ONLY_ME))
 
     # ── Variety management conversation ──────────────────────────────────────
@@ -233,6 +233,7 @@ def _register_handlers(app: Application) -> None:
 
     app.add_handler(CallbackQueryHandler(menu.cb_main_menu,             pattern="^menu:main$"))
     app.add_handler(CallbackQueryHandler(menu.cb_cancel,                pattern="^menu:cancel$"))
+    app.add_handler(CallbackQueryHandler(backup.cmd_backup,             pattern="^menu:backup$"))
 
     app.add_handler(CallbackQueryHandler(varieties.show_varieties_menu, pattern="^menu:varieties$"))
     app.add_handler(CallbackQueryHandler(varieties.cb_varieties_list,   pattern="^var_menu:list$"))
@@ -246,6 +247,7 @@ def _register_handlers(app: Application) -> None:
 
     app.add_handler(CallbackQueryHandler(analytics.show_analytics_menu, pattern="^menu:analytics$"))
     app.add_handler(CallbackQueryHandler(analytics.cb_an_calendar,      pattern="^an:calendar$"))
+    app.add_handler(CallbackQueryHandler(analytics.cb_an_cal_year,      pattern="^an_cal_year:"))
     app.add_handler(CallbackQueryHandler(analytics.cb_an_cal_month,     pattern="^an_cal_month:"))
     app.add_handler(CallbackQueryHandler(analytics.cb_an_bush_history,  pattern="^an:bush_history$"))
     app.add_handler(CallbackQueryHandler(analytics.cb_an_hist_var,      pattern="^an_hist_var:"))
