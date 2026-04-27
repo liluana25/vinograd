@@ -261,8 +261,8 @@ async def _ask_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> str:
 
 
 async def cb_ev_skip_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
-    q = update.callback_query
-    await q.answer()
+    if update.callback_query:
+        await update.callback_query.answer()
     ctx.user_data["ev_photo"] = None
     return await _save_event(update, ctx)
 
