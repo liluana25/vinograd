@@ -14,7 +14,7 @@ def fuzzy_find(
     name_key: str = "name",
     limit: int = 5,
     direct_threshold: int = 85,
-    suggest_threshold: int = 55,
+    suggest_threshold: int = 65,
 ) -> tuple[dict | None, list[dict]]:
     """
     Returns (direct_match_or_None, list_of_suggestions).
