@@ -17,6 +17,7 @@ from bot.config import TELEGRAM_TOKEN, ALLOWED_USER_ID
 from bot.database.models import init_db
 
 from bot.handlers import menu, varieties, events, cuttings, templates, analytics, backup
+from bot.handlers.menu import MENU_BUTTON_TEXT
 from bot.handlers.events import (
     EV_VARIETY, EV_TYPE, EV_DATE, EV_PRODUCT, EV_PRODUCT_NEW_NAME, EV_WEIGHT, EV_NOTE, EV_PHOTO,
 )
@@ -39,8 +40,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-_ONLY_ME = filters.User(user_id=ALLOWED_USER_ID)
-_TEXT = filters.TEXT & ~filters.COMMAND & _ONLY_ME
+_ONLY_ME   = filters.User(user_id=ALLOWED_USER_ID)
+_MENU_BTN  = filters.Text([MENU_BUTTON_TEXT]) & _ONLY_ME
+# Exclude the menu button text so conversations don't swallow it
+_TEXT  = filters.TEXT & ~filters.COMMAND & ~filters.Text([MENU_BUTTON_TEXT]) & _ONLY_ME
 _PHOTO = filters.PHOTO & _ONLY_ME
 
 
@@ -78,8 +81,9 @@ def _register_handlers(app: Application) -> None:
             ],
         },
         fallbacks=[
-            CommandHandler("cancel", varieties.cmd_cancel,     filters=_ONLY_ME),
-            CommandHandler("menu",   menu.cmd_menu_to_main,    filters=_ONLY_ME),
+            CommandHandler("cancel", varieties.cmd_cancel,  filters=_ONLY_ME),
+            CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
+            MessageHandler(_MENU_BTN, menu.cmd_menu_to_main),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -124,8 +128,9 @@ def _register_handlers(app: Application) -> None:
             ],
         },
         fallbacks=[
-            CommandHandler("cancel", events.cmd_cancel,     filters=_ONLY_ME),
+            CommandHandler("cancel", events.cmd_cancel,  filters=_ONLY_ME),
             CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
+            MessageHandler(_MENU_BTN, menu.cmd_menu_to_main),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -167,6 +172,7 @@ def _register_handlers(app: Application) -> None:
         fallbacks=[
             CommandHandler("cancel", cuttings.cmd_cancel,   filters=_ONLY_ME),
             CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
+            MessageHandler(_MENU_BTN, menu.cmd_menu_to_main),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -227,6 +233,7 @@ def _register_handlers(app: Application) -> None:
         fallbacks=[
             CommandHandler("cancel", templates.cmd_cancel,  filters=_ONLY_ME),
             CommandHandler("menu",   menu.cmd_menu_to_main, filters=_ONLY_ME),
+            MessageHandler(_MENU_BTN, menu.cmd_menu_to_main),
             CallbackQueryHandler(menu.cb_cancel, pattern="^menu:cancel$"),
         ],
         per_message=False,
@@ -234,6 +241,9 @@ def _register_handlers(app: Application) -> None:
     app.add_handler(tpl_conv)
 
     # ── Standalone callback handlers ──────────────────────────────────────────
+
+    # Persistent bottom keyboard button
+    app.add_handler(MessageHandler(_MENU_BTN, menu.cmd_menu_to_main))
 
     app.add_handler(CallbackQueryHandler(menu.cb_main_menu,             pattern="^menu:main$"))
     app.add_handler(CallbackQueryHandler(menu.cb_cancel,                pattern="^menu:cancel$"))

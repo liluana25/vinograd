@@ -6,9 +6,11 @@ from telegram.ext import ContextTypes, ConversationHandler
 
 from bot.utils.keyboards import main_menu_keyboard
 
-# Persistent bottom keyboard shown once on /start
+# Text of the persistent bottom button — must match _MENU_BTN filter in main.py
+MENU_BUTTON_TEXT = "🏠 Главное меню"
+
 _BOTTOM_KB = ReplyKeyboardMarkup(
-    [["/menu"]],
+    [[MENU_BUTTON_TEXT]],
     resize_keyboard=True,
     is_persistent=True,
 )
@@ -17,7 +19,7 @@ _BOTTOM_KB = ReplyKeyboardMarkup(
 async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "🍇 <b>Журнал виноградника</b>\n\n"
-        "Кнопка /menu закреплена внизу — возвращает сюда из любого места.",
+        "Кнопка «🏠 Главное меню» закреплена внизу — возвращает сюда из любого места.",
         reply_markup=_BOTTOM_KB,
         parse_mode="HTML",
     )
@@ -36,7 +38,7 @@ async def cmd_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def cmd_menu_to_main(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
-    """Conversation fallback: cancel any active flow and return to main menu."""
+    """Conversation fallback and button handler: cancel any active flow."""
     ctx.user_data.clear()
     await update.message.reply_text(
         "🍇 <b>Журнал виноградника</b>\n\nВыбери раздел:",
@@ -56,11 +58,13 @@ async def cb_main_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
-async def cb_cancel(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+async def cb_cancel(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query
     await q.answer("Отменено")
     ctx.user_data.clear()
     await q.edit_message_text(
-        "Главное меню:",
+        "🍇 <b>Журнал виноградника</b>\n\nВыбери раздел:",
         reply_markup=main_menu_keyboard(),
+        parse_mode="HTML",
     )
+    return ConversationHandler.END
