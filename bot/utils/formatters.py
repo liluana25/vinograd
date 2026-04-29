@@ -103,10 +103,12 @@ def fmt_products_usage(year: int, rows: list[dict]) -> str:
     if not rows:
         return f"🧪 Препараты {year}: данных нет."
     lines = [f"🧪 <b>Препараты и удобрения {year}</b>\n"]
+    CATEGORY_RU = {"treatment": "обработка", "fertilizing": "подкормка"}
     cur_product = None
     for r in rows:
         if r["product"] != cur_product:
-            lines.append(f"\n<b>{r['product']}</b> [{r['category']}]")
+            cat = CATEGORY_RU.get(r["category"], r["category"])
+            lines.append(f"\n<b>{r['product']}</b> ({cat})")
             cur_product = r["product"]
         entry = f"  {fmt_date(r['date'])} — {r['variety_name']}"
         if r.get("note"):
