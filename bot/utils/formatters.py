@@ -60,6 +60,8 @@ def fmt_calendar(year: int, month: int, events: list[dict]) -> str:
                 line += f" ({e['product_name']})"
             if e.get("weight_kg"):
                 line += f" {e['weight_kg']} кг"
+            if e.get("note"):
+                line += f"  <i>{e['note']}</i>"
             lines.append(line)
     return "\n".join(lines)
 
@@ -106,7 +108,10 @@ def fmt_products_usage(year: int, rows: list[dict]) -> str:
         if r["product"] != cur_product:
             lines.append(f"\n<b>{r['product']}</b> [{r['category']}]")
             cur_product = r["product"]
-        lines.append(f"  {fmt_date(r['date'])} — {r['variety_name']}")
+        entry = f"  {fmt_date(r['date'])} — {r['variety_name']}"
+        if r.get("note"):
+            entry += f"  <i>{r['note']}</i>"
+        lines.append(entry)
     return "\n".join(lines)
 
 

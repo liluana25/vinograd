@@ -186,7 +186,7 @@ async def get_treatment_count_per_variety(year: int) -> list[dict]:
 
 async def get_products_usage(year: int) -> list[dict]:
     return await _fetchall(
-        """SELECT p.name as product, p.category, e.date, v.name as variety_name
+        """SELECT p.name as product, p.category, e.date, v.name as variety_name, e.note
            FROM events e
            JOIN varieties v ON e.variety_id=v.id
            JOIN products p ON e.product_id=p.id
